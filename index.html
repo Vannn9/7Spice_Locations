@@ -236,17 +236,24 @@
             <button onclick="top.location.href='${loc.url}'">View Details</button>
           `;
 
-          // Shared handler function for both div and pin clicks
           const handleLocationSelect = () => {
+            // Reset previous marker icon
             if (activeMarker) activeMarker.setIcon(getDefaultIcon());
+
+            // Set active marker and animate bounce
             marker.setIcon(getActiveIcon());
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+            setTimeout(() => marker.setAnimation(null), 700);
             activeMarker = marker;
 
+            // Highlight the active div
             if (activeDiv) activeDiv.classList.remove("active");
             locationDiv.classList.add("active");
             activeDiv = locationDiv;
 
+            // Pan and scroll
             map.panTo(marker.getPosition());
+            locationDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
           };
 
           locationDiv.addEventListener("click", handleLocationSelect);
