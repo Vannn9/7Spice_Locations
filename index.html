@@ -1,101 +1,169 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>7Spice Store Locator</title>
+    <title>7Spice Locations</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
-      body, html {
-        margin: 0;
-        padding: 0;
+      html,
+      body {
         height: 100%;
+        margin: 0;
         font-family: Arial, sans-serif;
-        display: flex;
       }
+
+      .container {
+        display: flex;
+        height: 100vh;
+      }
+
       .sidebar {
         width: 30%;
-        max-width: 400px;
+        padding: 20px;
+        box-sizing: border-box;
         overflow-y: auto;
-        background: #f7f7f7;
-        padding: 1rem;
-        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        background-color: #f8f8f8;
+        border-right: 1px solid #ddd;
       }
-      .location {
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 1rem;
-      }
-      .location h3 {
-        margin: 0 0 0.5rem;
-      }
-      .location button {
-        background: #1967d2;
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        border-radius: 5px;
-      }
-      gmp-map {
+
+      .map {
         flex-grow: 1;
-        height: 100%;
+      }
+
+      .location {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+      }
+
+      .location h3 {
+        margin: 0;
+        font-size: 1.1em;
+      }
+
+      .location p {
+        margin: 5px 0;
+        font-size: 0.9em;
+      }
+
+      .location a {
+        display: inline-block;
+        margin-top: 5px;
+        color: #1967d2;
+        text-decoration: none;
       }
     </style>
   </head>
   <body>
-    <div class="sidebar" id="locationList"></div>
-
-    <gmp-map center="29.7,-95.4" zoom="10" map-id="DEMO_MAP_ID"></gmp-map>
+    <div class="container">
+      <div class="sidebar" id="location-list"></div>
+      <div class="map" id="map"></div>
+    </div>
 
     <script>
       const locations = [
         {
           title: "7Spice Galleria",
-          address: "6449 Westheimer Rd, Houston, TX 77057",
+          address: "6449 Westheimer Rd, Houston, TX 77057, USA",
+          phone: "(832) 463-2922",
+          url: "https://7spicecajun.com/houston-galleria/",
           coords: { lat: 29.737322, lng: -95.498383 },
-          link: "https://7spicecajun.com/houston-galleria/"
         },
         {
           title: "7Spice Medical Center",
-          address: "9540 S Main St STE 140, Houston, TX 77025",
+          address: "9540 S Main St STE 140, Houston, TX 77025, USA",
+          phone: "(346) 699-7742",
+          url: "https://7spicecajun.com/medical-center/",
           coords: { lat: 29.681298, lng: -95.425530 },
-          link: "https://7spicecajun.com/medical-center/"
-        }
+        },
       ];
 
-      const markerRefs = [];
-      const locationList = document.getElementById("locationList");
-      const map = document.querySelector("gmp-map");
+      let map;
+      let markers = [];
+      let activeMarker = null;
 
-      customElements.whenDefined("gmp-map").then(() => {
-        locations.forEach((loc, index) => {
-          const marker = document.createElement("gmp-advanced-marker");
-          marker.setAttribute("position", `${loc.coords.lat},${loc.coords.lng}`);
-          marker.setAttribute("title", loc.title);
-          marker.innerHTML = `<img src="https://maps.google.com/mapfiles/ms/icons/red-dot.png">`;
-          map.appendChild(marker);
-          markerRefs.push(marker);
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: 29.717, lng: -95.461 },
+          zoom: 11,
+        });
 
-          const item = document.createElement("div");
-          item.className = "location";
-          item.innerHTML = `
-            <h3>${loc.title}</h3>
-            <p>${loc.address}</p>
-            <button onclick="window.location='${loc.link}'">View Details</button>
-          `;
-          item.addEventListener("click", () => {
-            map.setAttribute("center", `${loc.coords.lat},${loc.coords.lng}`);
-            markerRefs.forEach(m => m.innerHTML = `<img src='https://maps.google.com/mapfiles/ms/icons/red-dot.png'>`);
-            marker.innerHTML = `<img src='https://maps.google.com/mapfiles/ms/icons/blue-dot.png'>`;
+        const listContainer = document.getElementById("location-list");
+
+        locations.forEach((loc) => {
+          const marker = new google.maps.Marker({
+            position: loc.coords,
+            map,
+            title: loc.title,
+            icon: getDefaultIcon(),
           });
 
-          locationList.appendChild(item);
-        });
-      });
-    </script>
+          markers.push(marker);
 
+          const locationDiv = document.createElement("div");
+          locationDiv.className = "location";
+          locationDiv.innerHTML = `
+            <h3>${loc.title}</h3>
+            <p>${loc.address}</p>
+            <p>${loc.phone}</p>
+            <a href="${loc.url}">View Details</a>
+          `;
+
+          locationDiv.addEventListener("click", () => {
+            if (activeMarker) activeMarker.setIcon(getDefaultIcon());
+            marker.setIcon(getActiveIcon());
+            activeMarker = marker;
+            smoothPanTo(map, marker.getPosition());
+          });
+
+          listContainer.appendChild(locationDiv);
+        });
+      }
+
+      function smoothPanTo(map, targetPosition) {
+        const panSteps = 30;
+        const panDuration = 1000;
+        const interval = panDuration / panSteps;
+
+        const startPosition = map.getCenter();
+        const deltaLat = (targetPosition.lat() - startPosition.lat()) / panSteps;
+        const deltaLng = (targetPosition.lng() - startPosition.lng()) / panSteps;
+
+        let i = 0;
+        const panInterval = setInterval(() => {
+          const nextLat = startPosition.lat() + deltaLat * i;
+          const nextLng = startPosition.lng() + deltaLng * i;
+          map.setCenter({ lat: nextLat, lng: nextLng });
+          i++;
+          if (i > panSteps) clearInterval(panInterval);
+        }, interval);
+      }
+
+      function getDefaultIcon() {
+        return {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 8,
+          fillColor: "#1967d2",
+          fillOpacity: 1,
+          strokeWeight: 1,
+          strokeColor: "white",
+        };
+      }
+
+      function getActiveIcon() {
+        return {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: "#d32f2f",
+          fillOpacity: 1,
+          strokeWeight: 1,
+          strokeColor: "white",
+        };
+      }
+    </script>
     <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCY_FY1Uf8i2QBA2rlkyH0_aU7bY4cQro8&libraries=marker&v=beta"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCY_FY1Uf8i2QBA2rlkyH0_aU7bY4cQro8&callback=initMap"
+      async
       defer
     ></script>
   </body>
