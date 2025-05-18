@@ -236,7 +236,8 @@
             <button onclick="top.location.href='${loc.url}'">View Details</button>
           `;
 
-          locationDiv.addEventListener("click", () => {
+          // Shared handler function for both div and pin clicks
+          const handleLocationSelect = () => {
             if (activeMarker) activeMarker.setIcon(getDefaultIcon());
             marker.setIcon(getActiveIcon());
             activeMarker = marker;
@@ -246,7 +247,10 @@
             activeDiv = locationDiv;
 
             map.panTo(marker.getPosition());
-          });
+          };
+
+          locationDiv.addEventListener("click", handleLocationSelect);
+          marker.addListener("click", handleLocationSelect);
 
           listContainer.appendChild(locationDiv);
         });
