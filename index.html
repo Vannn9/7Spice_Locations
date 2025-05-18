@@ -22,7 +22,7 @@
         padding: 20px;
         box-sizing: border-box;
         overflow-y: auto;
-        background-color: #f8f8f8;
+        background-color: #fff;
         border-right: 1px solid #ddd;
       }
 
@@ -36,6 +36,12 @@
         border-bottom: 1px solid #ccc;
       }
 
+      .location.active {
+        border: 2px solid #1967d2;
+        padding: 8px;
+        border-radius: 5px;
+      }
+
       .location h3 {
         margin: 0;
         font-size: 1.1em;
@@ -46,11 +52,19 @@
         font-size: 0.9em;
       }
 
-      .location a {
-        display: inline-block;
+      .location button {
         margin-top: 5px;
-        color: #1967d2;
-        text-decoration: none;
+        padding: 6px 12px;
+        border: none;
+        background-color: #d32f2f;
+        color: #fff;
+        cursor: pointer;
+        border-radius: 4px;
+        font-weight: bold;
+      }
+
+      .location button:hover {
+        background-color: #c62828;
       }
     </style>
   </head>
@@ -65,22 +79,23 @@
         {
           title: "7Spice Galleria",
           address: "6449 Westheimer Rd, Houston, TX 77057, USA",
-          phone: "(832) 463-2922",
+          phone: "(713) 780-7773",
           url: "https://7spicecajun.com/houston-galleria/",
           coords: { lat: 29.737322, lng: -95.498383 },
         },
         {
           title: "7Spice Medical Center",
           address: "9540 S Main St STE 140, Houston, TX 77025, USA",
-          phone: "(346) 699-7742",
+          phone: "(713) 123-4567",
           url: "https://7spicecajun.com/medical-center/",
-          coords: { lat: 29.681298, lng: -95.425530 },
+          coords: { lat: 29.681298, lng: -95.42553 },
         },
       ];
 
       let map;
       let markers = [];
       let activeMarker = null;
+      let activeDiv = null;
 
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
@@ -90,7 +105,7 @@
 
         const listContainer = document.getElementById("location-list");
 
-        locations.forEach((loc) => {
+        locations.forEach((loc, index) => {
           const marker = new google.maps.Marker({
             position: loc.coords,
             map,
@@ -106,58 +121,34 @@
             <h3>${loc.title}</h3>
             <p>${loc.address}</p>
             <p>${loc.phone}</p>
-            <a href="${loc.url}">View Details</a>
+            <button onclick="window.location.href='${loc.url}'">View Details</button>
           `;
 
           locationDiv.addEventListener("click", () => {
             if (activeMarker) activeMarker.setIcon(getDefaultIcon());
             marker.setIcon(getActiveIcon());
             activeMarker = marker;
-            smoothPanTo(map, marker.getPosition());
+
+            if (activeDiv) activeDiv.classList.remove("active");
+            locationDiv.classList.add("active");
+            activeDiv = locationDiv;
+
+            map.panTo(marker.getPosition());
           });
 
           listContainer.appendChild(locationDiv);
         });
       }
 
-      function smoothPanTo(map, targetPosition) {
-        const panSteps = 30;
-        const panDuration = 1000;
-        const interval = panDuration / panSteps;
-
-        const startPosition = map.getCenter();
-        const deltaLat = (targetPosition.lat() - startPosition.lat()) / panSteps;
-        const deltaLng = (targetPosition.lng() - startPosition.lng()) / panSteps;
-
-        let i = 0;
-        const panInterval = setInterval(() => {
-          const nextLat = startPosition.lat() + deltaLat * i;
-          const nextLng = startPosition.lng() + deltaLng * i;
-          map.setCenter({ lat: nextLat, lng: nextLng });
-          i++;
-          if (i > panSteps) clearInterval(panInterval);
-        }, interval);
-      }
-
       function getDefaultIcon() {
         return {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 8,
-          fillColor: "#1967d2",
-          fillOpacity: 1,
-          strokeWeight: 1,
-          strokeColor: "white",
+          url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
         };
       }
 
       function getActiveIcon() {
         return {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: "#d32f2f",
-          fillOpacity: 1,
-          strokeWeight: 1,
-          strokeColor: "white",
+          url: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
         };
       }
     </script>
