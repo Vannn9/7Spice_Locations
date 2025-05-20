@@ -19,28 +19,34 @@
 
       .sidebar {
         width: 30%;
-        padding: 20px;
+        display: flex;
+        flex-direction: column;
         box-sizing: border-box;
-        overflow-y: auto;
         background-color: #fff;
         border-right: 1px solid #ddd;
       }
 
-      .map {
-        flex-grow: 1;
-        position: relative;
+      .search-container {
+        padding: 10px 20px;
+        border-bottom: 1px solid #ccc;
       }
 
-      #location-search {
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 5;
-        width: 300px;
-        padding: 8px;
-        border-radius: 4px;
+      #search-input {
+        width: 100%;
+        padding: 10px;
+        font-size: 1em;
         border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      .location-list {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px;
+      }
+
+      .map {
+        flex-grow: 1;
       }
 
       .location {
@@ -83,11 +89,13 @@
   </head>
   <body>
     <div class="container">
-      <div class="sidebar" id="location-list"></div>
-      <div class="map">
-        <input id="location-search" type="text" placeholder="Search by address or zip code" />
-        <div id="map" style="height: 100%;"></div>
+      <div class="sidebar">
+        <div class="search-container">
+          <input id="search-input" type="text" placeholder="Search by address or zip" />
+        </div>
+        <div class="location-list" id="location-list"></div>
       </div>
+      <div class="map" id="map"></div>
     </div>
 
     <script>
@@ -227,6 +235,7 @@
 
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: 29.717, lng: -95.461 },
           zoom: 11,
         });
 
@@ -242,7 +251,7 @@
           });
 
           markers.push(marker);
-          bounds.extend(loc.coords);
+          bounds.extend(marker.getPosition());
 
           const locationDiv = document.createElement("div");
           locationDiv.className = "location";
@@ -276,23 +285,21 @@
         });
 
         map.fitBounds(bounds);
-        setupAutocomplete();
-      }
 
-      function setupAutocomplete() {
-        const input = document.getElementById("location-search");
+        const input = document.getElementById("search-input");
         const autocomplete = new google.maps.places.Autocomplete(input);
         autocomplete.bindTo("bounds", map);
 
         autocomplete.addListener("place_changed", () => {
           const place = autocomplete.getPlace();
-          if (!place.geometry || !place.geometry.location) {
-            alert("No details available for input: '" + place.name + "'");
-            return;
-          }
+          if (!place.geometry) return;
 
-          map.panTo(place.geometry.location);
-          map.setZoom(13);
+          if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+          } else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(12);
+          }
         });
       }
 
@@ -309,7 +316,7 @@
       }
     </script>
     <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCY_FY1Uf8i2QBA2rlkyH0_aU7bY4cQro8&callback=initMap&libraries=places"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCY_FY1Uf8i2QBA2rlkyH0_aU7bY4cQro8&libraries=places&callback=initMap"
       async
       defer
     ></script>
