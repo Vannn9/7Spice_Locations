@@ -336,11 +336,19 @@
 
       input.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
-          e.preventDefault(); // prevent form submit
+          e.preventDefault(); // Prevent default form submission
           const firstResult = document.querySelector('.pac-container .pac-item');
-          if (firstResult) firstResult.click(); // simulate selecting the top suggestion
+          if (firstResult) {
+            // Simulate selecting the top suggestion after a brief delay
+            firstResult.click();
+          } else {
+            // If no dropdown options, trigger place_changed manually
+            google.maps.event.trigger(input, 'blur');
+            google.maps.event.trigger(input, 'change');
+          }
         }
       });
+
 
       function getDefaultIcon() {
         return {
