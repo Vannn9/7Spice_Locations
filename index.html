@@ -85,6 +85,15 @@
       .location button:hover {
         background-color: #c62828;
       }
+
+      #search-input {
+        width: 100%;
+        padding: 10px;
+        font-size: 1em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
     </style>
   </head>
   <body>
@@ -300,8 +309,38 @@
             map.setCenter(place.geometry.location);
             map.setZoom(12);
           }
+
+          if (!locations.some(loc => loc.coords.lat === place.geometry.location.lat() && loc.coords.lng === place.geometry.location.lng())) {
+            // Find the nearest known location
+            let nearest = null;
+            let minDistance = Infinity;
+
+            locations.forEach(loc => {
+              const dist = google.maps.geometry.spherical.computeDistanceBetween(
+                new google.maps.LatLng(loc.coords.lat, loc.coords.lng),
+                place.geometry.location
+              );
+              if (dist < minDistance) {
+                minDistance = dist;
+                nearest = loc;
+              }
+            });
+
+            if (nearest) {
+              map.panTo(nearest.coords);
+              map.setZoom(12);
+            }
+          }
         });
       }
+
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault(); // prevent form submit
+          const firstResult = document.querySelector('.pac-container .pac-item');
+          if (firstResult) firstResult.click(); // simulate selecting the top suggestion
+        }
+      });
 
       function getDefaultIcon() {
         return {
