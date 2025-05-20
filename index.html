@@ -28,6 +28,19 @@
 
       .map {
         flex-grow: 1;
+        position: relative;
+      }
+
+      #location-search {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 5;
+        width: 300px;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
       }
 
       .location {
@@ -71,7 +84,10 @@
   <body>
     <div class="container">
       <div class="sidebar" id="location-list"></div>
-      <div class="map" id="map"></div>
+      <div class="map">
+        <input id="location-search" type="text" placeholder="Search by address or zip code" />
+        <div id="map" style="height: 100%;"></div>
+      </div>
     </div>
 
     <script>
@@ -158,7 +174,7 @@
           address: "7107 Highway 6 South, Ste 200 Houston, TX 77083, USA",
           phone: "(346) 241-7742",
           url: "https://7spicecajun.com/mission-bend/",
-          coords: { lat: 29.7011373, lng: -95.6880422 },
+          coords: { lat: 29.5578593, lng: -95.2602411 },
         },
         {
           title: "7Spice FM 1960 Bypass",
@@ -211,11 +227,11 @@
 
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
-          center: { lat: 29.717, lng: -95.461 },
           zoom: 11,
         });
 
         const listContainer = document.getElementById("location-list");
+        const bounds = new google.maps.LatLngBounds();
 
         locations.forEach((loc, index) => {
           const marker = new google.maps.Marker({
@@ -226,6 +242,7 @@
           });
 
           markers.push(marker);
+          bounds.extend(loc.coords);
 
           const locationDiv = document.createElement("div");
           locationDiv.className = "location";
@@ -237,21 +254,17 @@
           `;
 
           const handleLocationSelect = () => {
-            // Reset previous marker icon
             if (activeMarker) activeMarker.setIcon(getDefaultIcon());
 
-            // Set active marker and animate bounce
             marker.setIcon(getActiveIcon());
             marker.setAnimation(google.maps.Animation.BOUNCE);
             setTimeout(() => marker.setAnimation(null), 700);
             activeMarker = marker;
 
-            // Highlight the active div
             if (activeDiv) activeDiv.classList.remove("active");
             locationDiv.classList.add("active");
             activeDiv = locationDiv;
 
-            // Pan and scroll
             map.panTo(marker.getPosition());
             locationDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
           };
@@ -260,6 +273,26 @@
           marker.addListener("click", handleLocationSelect);
 
           listContainer.appendChild(locationDiv);
+        });
+
+        map.fitBounds(bounds);
+        setupAutocomplete();
+      }
+
+      function setupAutocomplete() {
+        const input = document.getElementById("location-search");
+        const autocomplete = new google.maps.places.Autocomplete(input);
+        autocomplete.bindTo("bounds", map);
+
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          if (!place.geometry || !place.geometry.location) {
+            alert("No details available for input: '" + place.name + "'");
+            return;
+          }
+
+          map.panTo(place.geometry.location);
+          map.setZoom(13);
         });
       }
 
@@ -276,7 +309,7 @@
       }
     </script>
     <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCY_FY1Uf8i2QBA2rlkyH0_aU7bY4cQro8&callback=initMap"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCY_FY1Uf8i2QBA2rlkyH0_aU7bY4cQro8&callback=initMap&libraries=places"
       async
       defer
     ></script>
