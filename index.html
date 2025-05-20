@@ -355,15 +355,27 @@
         
         input.addEventListener("keydown", function (e) {
           if (e.key === "Enter") {
-            e.preventDefault(); // Prevent default form submission
-            const firstResult = document.querySelector('.pac-container .pac-item');
-            if (firstResult) {
-              // Simulate selecting the top suggestion after a brief delay
-              firstResult.click();
+            e.preventDefault();
+
+            // Check if autocomplete dropdown is visible
+            const pacContainer = document.querySelector(".pac-container");
+            const isDropdownVisible = pacContainer && pacContainer.style.display !== "none";
+
+            if (isDropdownVisible) {
+              // The autocomplete dropdown is visible, but user pressed Enter without clicking
+              // Trigger place_changed manually to force selection of first item
+              google.maps.event.trigger(input, "keydown", {
+                keyCode: 40, // DOWN arrow key to highlight first option
+              });
+
+              setTimeout(() => {
+                google.maps.event.trigger(input, "keydown", {
+                  keyCode: 13, // ENTER key to select highlighted option
+                });
+              }, 100);
             } else {
-              // If no dropdown options, trigger place_changed manually
-              google.maps.event.trigger(input, 'blur');
-              google.maps.event.trigger(input, 'change');
+              // No dropdown, you could either ignore or manually handle it (e.g., select nearest location)
+              // Or just do nothing
             }
           }
         });
