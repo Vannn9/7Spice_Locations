@@ -303,52 +303,71 @@
           const place = autocomplete.getPlace();
           if (!place.geometry) return;
 
+          const location = place.geometry.location;
+
           if (place.geometry.viewport) {
             map.fitBounds(place.geometry.viewport);
           } else {
-            map.setCenter(place.geometry.location);
+            map.setCenter(location);
             map.setZoom(12);
           }
 
-          if (!locations.some(loc => loc.coords.lat === place.geometry.location.lat() && loc.coords.lng === place.geometry.location.lng())) {
+          const exactMatch = locations.some(
+            (loc) => loc.coords.lat === location.lat() && loc.coords.lng === location.lng()
+          );
+
+          if (!exactMatch) {
             // Find the nearest known location
             let nearest = null;
             let minDistance = Infinity;
 
-            locations.forEach(loc => {
+            locations.forEach((loc, index) => {
               const dist = google.maps.geometry.spherical.computeDistanceBetween(
                 new google.maps.LatLng(loc.coords.lat, loc.coords.lng),
-                place.geometry.location
+                location
               );
               if (dist < minDistance) {
                 minDistance = dist;
-                nearest = loc;
+                nearest = { loc, index };
               }
             });
 
             if (nearest) {
-              map.panTo(nearest.coords);
-              map.setZoom(12);
+              const marker = markers[nearest.index];
+              const locationDiv = document.getElementsByClassName("location")[nearest.index];
+
+              // Highlight and animate the marker and list item
+              if (activeMarker) activeMarker.setIcon(getDefaultIcon());
+              marker.setIcon(getActiveIcon());
+              marker.setAnimation(google.maps.Animation.BOUNCE);
+              setTimeout(() => marker.setAnimation(null), 700);
+              activeMarker = marker;
+
+              if (activeDiv) activeDiv.classList.remove("active");
+              locationDiv.classList.add("active");
+              activeDiv = locationDiv;
+
+              map.panTo(marker.getPosition());
+              locationDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+          }
+        });
+        
+        input.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault(); // Prevent default form submission
+            const firstResult = document.querySelector('.pac-container .pac-item');
+            if (firstResult) {
+              // Simulate selecting the top suggestion after a brief delay
+              firstResult.click();
+            } else {
+              // If no dropdown options, trigger place_changed manually
+              google.maps.event.trigger(input, 'blur');
+              google.maps.event.trigger(input, 'change');
             }
           }
         });
       }
-
-      input.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-          e.preventDefault(); // Prevent default form submission
-          const firstResult = document.querySelector('.pac-container .pac-item');
-          if (firstResult) {
-            // Simulate selecting the top suggestion after a brief delay
-            firstResult.click();
-          } else {
-            // If no dropdown options, trigger place_changed manually
-            google.maps.event.trigger(input, 'blur');
-            google.maps.event.trigger(input, 'change');
-          }
-        }
-      });
-
 
       function getDefaultIcon() {
         return {
