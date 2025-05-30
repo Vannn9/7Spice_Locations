@@ -368,6 +368,8 @@
               marker.addListener("click", () => handleLocationSelect(loc, marker));
 
               listContainer.appendChild(locationDiv);
+
+              scrollMapIntoView();
             });
           };
 
@@ -466,6 +468,8 @@
 
           map.panTo(closestMarker.getPosition());
           closestDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+          scrollMapIntoView();
         });
 
         
@@ -517,6 +521,13 @@
           url: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
         };
       }
+
+      function scrollMapIntoView() {
+        if (window.innerWidth <= 768) {
+          document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+
     </script>
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCY_FY1Uf8i2QBA2rlkyH0_aU7bY4cQro8&libraries=places,geometry&callback=initMap"
