@@ -523,11 +523,9 @@
       }
 
       function scrollMapIntoView() {
-        if (window.innerWidth <= 768) {
-          window.scrollTo({
-            top: document.getElementById("map").offsetTop - 20, // 20px padding
-            behavior: "smooth",
-          });
+        const mapEl = document.getElementById("map");
+        if (window.innerWidth <= 768 && mapEl) {
+          mapEl.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       }
 
