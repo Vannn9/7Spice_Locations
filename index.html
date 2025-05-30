@@ -271,24 +271,64 @@
             <button onclick="top.location.href='${loc.url}'">View Details</button>
           `;
 
-          const handleLocationSelect = () => {
+          const handleLocationSelect = (selectedLoc, selectedMarker) => {
+            // Reset previous marker icon
             if (activeMarker) activeMarker.setIcon(getDefaultIcon());
 
-            marker.setIcon(getActiveIcon());
-            marker.setAnimation(google.maps.Animation.BOUNCE);
-            setTimeout(() => marker.setAnimation(null), 700);
-            activeMarker = marker;
+            // Set active marker and animate bounce
+            selectedMarker.setIcon(getActiveIcon());
+            selectedMarker.setAnimation(google.maps.Animation.BOUNCE);
+            setTimeout(() => selectedMarker.setAnimation(null), 700);
+            activeMarker = selectedMarker;
 
-            if (activeDiv) activeDiv.classList.remove("active");
-            locationDiv.classList.add("active");
-            activeDiv = locationDiv;
+            // Pan map to selected marker
+            map.panTo(selectedMarker.getPosition());
 
-            map.panTo(marker.getPosition());
-            locationDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            // Sort locations by distance to selected marker
+            const sorted = [...locations].sort((a, b) => {
+              const distA = google.maps.geometry.spherical.computeDistanceBetween(
+                new google.maps.LatLng(selectedLoc.coords),
+                new google.maps.LatLng(a.coords)
+              );
+              const distB = google.maps.geometry.spherical.computeDistanceBetween(
+                new google.maps.LatLng(selectedLoc.coords),
+                new google.maps.LatLng(b.coords)
+              );
+              return distA - distB;
+            });
+
+            // Rebuild sidebar
+            const listContainer = document.getElementById("location-list");
+            listContainer.innerHTML = "";
+
+            sorted.forEach(loc => {
+              const marker = markers.find(m => m.getTitle() === loc.title); // reuse existing markers
+
+              const locationDiv = document.createElement("div");
+              locationDiv.className = "location";
+              locationDiv.innerHTML = `
+                <h3>${loc.title}</h3>
+                <p>${loc.address}</p>
+                <p>${loc.phone}</p>
+                <button onclick="top.location.href='${loc.url}'">View Details</button>
+              `;
+
+              if (loc.title === selectedLoc.title) {
+                locationDiv.classList.add("active");
+                activeDiv = locationDiv;
+                setTimeout(() => locationDiv.scrollIntoView({ behavior: "smooth", block: "nearest" }), 300);
+              }
+
+              locationDiv.addEventListener("click", () => handleLocationSelect(loc, marker));
+              marker.addListener("click", () => handleLocationSelect(loc, marker));
+
+              listContainer.appendChild(locationDiv);
+            });
           };
 
-          locationDiv.addEventListener("click", handleLocationSelect);
-          marker.addListener("click", handleLocationSelect);
+
+          locationDiv.addEventListener("click", () => handleLocationSelect(loc, marker));
+          marker.addListener("click", () => handleLocationSelect(loc, marker));
 
           listContainer.appendChild(locationDiv);
         });
