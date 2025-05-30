@@ -114,7 +114,7 @@
         }
 
         .sidebar {
-          height: 50vh; /* Half screen for list */
+          height: 30vh; /* Half screen for list */
           order: 1;
           width: 100%;
           padding: 10px;
@@ -368,8 +368,6 @@
               marker.addListener("click", () => handleLocationSelect(loc, marker));
 
               listContainer.appendChild(locationDiv);
-
-              scrollMapIntoView();
             });
           };
 
@@ -468,8 +466,6 @@
 
           map.panTo(closestMarker.getPosition());
           closestDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
-
-          scrollMapIntoView();
         });
 
         
@@ -521,14 +517,6 @@
           url: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
         };
       }
-
-      function scrollMapIntoView() {
-        const mapEl = document.getElementById("map");
-        if (window.innerWidth <= 768 && mapEl) {
-          mapEl.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }
-
 
     </script>
     <script
