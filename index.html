@@ -103,23 +103,30 @@
         background-color: #c62828;
       }
 
-
-      /* Responsive layout for small screens */
       @media (max-width: 768px) {
         .container {
           flex-direction: column;
         }
 
         .map {
-          height: 50vh;
-          width: 100%;
+          height: 300px; /* Smaller map for mobile */
+          order: 0; /* Map on top */
         }
 
         .sidebar {
+          height: 50vh; /* Half screen for list */
+          order: 1;
           width: 100%;
-          height: 50vh;
-          border-right: none;
-          border-top: 1px solid #ddd;
+          padding: 10px;
+        }
+
+        .location {
+          margin-bottom: 15px;
+          padding-bottom: 8px;
+        }
+
+        .search-container {
+          margin-bottom: 15px;
         }
       }
 
