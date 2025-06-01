@@ -370,15 +370,8 @@
               listContainer.appendChild(locationDiv);
             });
 
-            // Scroll the entire page to bring the map into view
-              const mapElement = document.getElementById("map");
-              if (mapElement) {
-                const top = mapElement.getBoundingClientRect().top + window.scrollY;
-                window.scrollTo({
-                  top: 0, // Optional offset if you have a header
-                  behavior: "smooth"
-                });
-              }
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
           };
 
           locationDiv.addEventListener("click", () => handleLocationSelect(loc, marker));
