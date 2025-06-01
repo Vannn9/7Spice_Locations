@@ -368,16 +368,14 @@
               marker.addListener("click", () => handleLocationSelect(loc, marker));
 
               listContainer.appendChild(locationDiv);
-
-              // After panTo or selecting a marker
-              map.panTo(selectedMarker.getPosition());
-
-              // Scroll the entire page to bring the map into view (top of the screen or a specific offset)
-              window.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
-
             });
-          };
 
+            // Scroll the entire page to bring the map into view
+            const mapElement = document.getElementById("map");
+            if (mapElement) {
+              mapElement.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          };
 
           locationDiv.addEventListener("click", () => handleLocationSelect(loc, marker));
           marker.addListener("click", () => handleLocationSelect(loc, marker));
