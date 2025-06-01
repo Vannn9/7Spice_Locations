@@ -368,6 +368,12 @@
               marker.addListener("click", () => handleLocationSelect(loc, marker));
 
               listContainer.appendChild(locationDiv);
+
+              if (window.innerWidth < 768) {
+                setTimeout(() => {
+                  document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
+                }, 300);
+              }
             });
           };
 
