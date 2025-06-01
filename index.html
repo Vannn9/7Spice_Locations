@@ -369,11 +369,12 @@
 
               listContainer.appendChild(locationDiv);
 
-              if (window.innerWidth < 768) {
-                setTimeout(() => {
-                  document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
-                }, 300);
-              }
+              // After panTo or selecting a marker
+              map.panTo(selectedMarker.getPosition());
+
+              // Scroll the entire page to bring the map into view (top of the screen or a specific offset)
+              document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
+              console.log('test')
             });
           };
 
