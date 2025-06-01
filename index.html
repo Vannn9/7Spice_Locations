@@ -373,9 +373,7 @@
               map.panTo(selectedMarker.getPosition());
 
               // Scroll the entire page to bring the map into view (top of the screen or a specific offset)
-              document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
-              console.log('test')
-              window.scrollTo({ top: 0, behavior: "smooth" });
+              window.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
 
             });
           };
