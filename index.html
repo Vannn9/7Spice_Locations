@@ -373,14 +373,9 @@
             // Scroll the entire page to bring the map into view
             const mapElement = document.getElementById("map");
             if (mapElement) {
-              setTimeout(() => {
-                const yOffset = -60; // adjust based on any fixed/sticky header height
-                const y = mapElement.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                window.scrollTo({ top: y, behavior: "smooth" });
-                console.log("Tried scrolling to map");
-              }, 200); // give time for animations/layouts
+              mapElement.scrollIntoView({ behavior: "smooth", block: "start" });
+              console.log('Scrolled to map3');
             }
-
           };
 
           locationDiv.addEventListener("click", () => handleLocationSelect(loc, marker));
