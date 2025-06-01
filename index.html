@@ -373,9 +373,13 @@
             // Scroll the entire page to bring the map into view
             const mapElement = document.getElementById("map");
             if (mapElement) {
-              mapElement.scrollIntoView({ behavior: "smooth", block: "start" });
-              console.log('Scrolled to map3');
+              setTimeout(() => {
+                const top = mapElement.getBoundingClientRect().top + window.pageYOffset;
+                window.scrollTo({ top, behavior: "smooth" });
+                console.log("Scroll attempted to map");
+              }, 100);
             }
+
           };
 
           locationDiv.addEventListener("click", () => handleLocationSelect(loc, marker));
