@@ -371,7 +371,11 @@
             });
 
             // Scroll the entire page to bring the map into view
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            if (window.innerWidth < 768) {
+              setTimeout(() => {
+                window.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
+              }, 300);
+            }
           };
 
           locationDiv.addEventListener("click", () => handleLocationSelect(loc, marker));
