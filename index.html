@@ -375,12 +375,10 @@
             if (mapElement) {
               const top = mapElement.getBoundingClientRect().top + window.scrollY;
               window.scrollTo({
-                top: top - 50, // Optional offset if you have a header
+                top: 0, // Optional offset if you have a header
                 behavior: "smooth"
               });
-              console.log('test')
             }
-            console.log('test2')
           };
 
           locationDiv.addEventListener("click", () => handleLocationSelect(loc, marker));
