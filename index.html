@@ -374,10 +374,11 @@
             const mapElement = document.getElementById("map");
             if (mapElement) {
               setTimeout(() => {
-                const top = mapElement.getBoundingClientRect().top + window.pageYOffset;
-                window.scrollTo({ top, behavior: "smooth" });
-                console.log("Scroll attempted to map");
-              }, 100);
+                const yOffset = -60; // adjust based on any fixed/sticky header height
+                const y = mapElement.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                window.scrollTo({ top: y, behavior: "smooth" });
+                console.log("Tried scrolling to map");
+              }, 200); // give time for animations/layouts
             }
 
           };
