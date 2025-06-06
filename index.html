@@ -376,8 +376,8 @@
               const yOffset = -50; // Adjust if you have a sticky header
               const y = mapElement.getBoundingClientRect().top + window.scrollY + yOffset;
 
-              window.scrollTo({ top: y, behavior: 'smooth' });
-              console.log('Forced scroll to map using window.scrollTo');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              console.log('Forced scroll to map using window.scrollTo 222');
             }
           };
 
