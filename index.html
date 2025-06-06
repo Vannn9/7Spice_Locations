@@ -371,21 +371,11 @@
             });
 
             // Scroll the parent page to the map section
-            const mapElement = document.getElementById("map");
-
-            if (mapElement && window.parent) {
-              const mapRect = mapElement.getBoundingClientRect();
-              const yOffset = -50; // adjust as needed for headers
-              const scrollTarget = window.parent.scrollY + mapRect.top + yOffset;
-
-              window.parent.scrollTo({ top: scrollTarget, behavior: 'smooth' });
-              console.log('Tried to scroll parent to map');
+            if (window.parent) {
+              window.parent.scrollTo(0, 0); // no smooth behavior
+              console.log("Forced scroll to top of parent page");
             }
 
-            // checks
-            console.log("Body scrollHeight:", document.body.scrollHeight);
-            console.log("Page scrollTop:", document.getElementById("page")?.scrollTop);
-            console.log("Window scrollY:", window.scrollY);
 
           };
 
