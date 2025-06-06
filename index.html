@@ -370,15 +370,23 @@
               listContainer.appendChild(locationDiv);
             });
 
-            // Scroll the entire page to bring the map into view
+            // Scroll the parent page to the map section
             const mapElement = document.getElementById("map");
-            if (mapElement) {
-              const yOffset = -50; // Adjust if you have a sticky header
-              const y = mapElement.getBoundingClientRect().top + window.scrollY + yOffset;
 
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              console.log('Forced scroll to map using window.scrollTo 222');
+            if (mapElement && window.parent) {
+              const mapRect = mapElement.getBoundingClientRect();
+              const yOffset = -50; // adjust as needed for headers
+              const scrollTarget = window.parent.scrollY + mapRect.top + yOffset;
+
+              window.parent.scrollTo({ top: scrollTarget, behavior: 'smooth' });
+              console.log('Tried to scroll parent to map');
             }
+
+            // checks
+            console.log("Body scrollHeight:", document.body.scrollHeight);
+            console.log("Page scrollTop:", document.getElementById("page")?.scrollTop);
+            console.log("Window scrollY:", window.scrollY);
+
           };
 
           locationDiv.addEventListener("click", () => handleLocationSelect(loc, marker));
