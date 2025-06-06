@@ -373,8 +373,11 @@
             // Scroll the entire page to bring the map into view
             const mapElement = document.getElementById("map");
             if (mapElement) {
-              mapElement.scrollIntoView({ behavior: "smooth", block: "start" });
-              console.log('Scrolled to map3');
+              const yOffset = -50; // Adjust if you have a sticky header
+              const y = mapElement.getBoundingClientRect().top + window.scrollY + yOffset;
+
+              window.scrollTo({ top: y, behavior: 'smooth' });
+              console.log('Forced scroll to map using window.scrollTo');
             }
           };
 
