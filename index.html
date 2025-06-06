@@ -371,11 +371,10 @@
             });
 
             // Scroll the parent page to the map section
-            if (window.parent) {
-              window.parent.scrollTo(0, 0); // no smooth behavior
-              console.log("Forced scroll to top of parent page");
-            }
-            console.log('test1');
+            // Send a message to the parent page
+            window.parent.postMessage({ type: 'scrollToTop' }, '*');
+
+            console.log('test123');
           };
 
           locationDiv.addEventListener("click", () => handleLocationSelect(loc, marker));
