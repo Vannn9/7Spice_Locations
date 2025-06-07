@@ -373,8 +373,6 @@
             // Scroll the parent page to the map section
             // Send a message to the parent page
             window.parent.postMessage({ type: 'scrollToTop' }, '*');
-
-            console.log('test123');
           };
 
           locationDiv.addEventListener("click", () => handleLocationSelect(loc, marker));
