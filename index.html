@@ -444,6 +444,8 @@
 
               map.panTo(marker.getPosition());
               locationDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+              window.parent.postMessage({ type: 'scrollToTop' }, '*');
             });
 
             marker.addListener("click", () => {
@@ -471,6 +473,7 @@
 
           map.panTo(closestMarker.getPosition());
           closestDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          window.parent.postMessage({ type: 'scrollToTop' }, '*');
         });
 
         
